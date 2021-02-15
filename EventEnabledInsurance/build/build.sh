@@ -120,7 +120,11 @@ json=$(oc get configmap -n $namespace operator-info -o json)
 if [[ $? == 0 ]]; then
   METADATA_NAME=$(echo $json | tr '\r\n' ' ' | jq -r '.data.METADATA_NAME')
   METADATA_UID=$(echo $json | tr '\r\n' ' ' | jq -r '.data.METADATA_UID')
-  OWNER_REF_SED="s#{{OWNER_REF}}#  ownerReferences:\n    - apiVersion: integration.ibm.com/v1beta1\n      kind: Demo\n      name: $METADATA_NAME\n      uid: $METADATA_UID#g;"
+  OWNER_REF_SED="s#{{OWNER_REF}}#  ownerReferences:\\
+    - apiVersion: integration.ibm.com/v1beta1\\
+      kind: Demo\\
+      name: $METADATA_NAME\\
+      uid: $METADATA_UID#g;"
 fi
 
 CONFIGURATIONS="[serverconf-$SUFFIX, keystore-$SUFFIX, application.kdb, application.sth, application.jks, policyproject-$SUFFIX, setdbparms-$SUFFIX]"

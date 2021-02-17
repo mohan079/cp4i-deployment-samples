@@ -5,7 +5,7 @@ metadata:
   labels:
     app: pipeline-eei
     demo: eei
-  {{OWNER_REF}}
+{{OWNER_REF}}
 spec:
   workspaces:
     - name: git-source

@@ -135,8 +135,9 @@ if cat $CURRENT_DIR/pipeline.yaml |
   sed "s#{{CONFIGURATIONS}}#'$CONFIGURATIONS'#g;" |
   sed "s#{{FORKED_REPO}}#$REPO#g;" |
   sed "s#{{BRANCH}}#$BRANCH#g;" |
-  sed "${OWNER_REF_SED}" |
-  oc apply -n ${namespace} -f -; then
+  sed "${OWNER_REF_SED}" > /tmp/pipeline.yaml
+  cat /tmp/pipeline.yaml
+  oc apply -n ${namespace} -f /tmp/pipeline.yaml; then
   echo -e "\n$tick INFO: Successfully applied the pipeline to build and deploy the EEI apps in '$namespace' namespace"
 else
   echo -e "\n$cross ERROR: Failed to apply the pipeline to build and deploy the EEI apps in '$namespace' namespace"

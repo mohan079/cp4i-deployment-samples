@@ -38,11 +38,12 @@
 #   -w : <testDrivewayDentDeletionDemoE2E> (string), If testing the Driveway dent deletion demo E2E. Defaults to 'false'
 #   -x : <CLUSTER_TYPE> (string), Defines the cluster type for 1-click installation. Defaults to 'roks'
 #   -y : <CLUSTER_SCOPED> (string) (optional), If the operator and platform navigator install should cluster scoped or not. Defaults to 'false'
-#   -A : <LICENSE_ACCEPT> (string), Accept License
-#   -L : <LICENSE> (String), Non prodution license for ACE Integration server
+#   -A : <LICENSE_ACCEPT> (boolean), Accept License
+#   -C : <ACE_LICENSE> (String), Non-prodution license for App Connect
+#   -M : <MQ_LICENSE> (String), Non-prodution license for MQ
 #
 # USAGE:
-#   With defaults values
+#   With default values
 #     ./1-click-install.sh -p <csDefaultAdminPassword> -s <DOCKER_REGISTRY_PASS>
 #
 #   Overriding the params
@@ -75,7 +76,7 @@ mappingAssistDemo=false
 PASSWORD_CHANGE="true"
 weatherChatbotDemo=false
 
-while getopts "a:b:c:d:e:f:g:h:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:yAL:" opt; do
+while getopts "a:b:c:d:e:f:g:h:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:yAC:M:" opt; do
   case ${opt} in
   a)
     eventEnabledInsuranceDemo="$OPTARG"
@@ -152,8 +153,11 @@ while getopts "a:b:c:d:e:f:g:h:j:k:l:m:n:o:p:q:r:s:t:u:v:w:x:yAL:" opt; do
   A)
     LICENSE_ACCEPT=true
     ;;
-  L)
-    LICENSE="$OPTARG"
+  C)
+    ACE_LICENSE="$OPTARG"
+    ;;
+  M)
+    MQ_LICENSE="$OPTARG"
     ;;
   \?)
     usage

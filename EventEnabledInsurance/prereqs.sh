@@ -12,6 +12,7 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -n : <NAMESPACE> (string), Defaults to 'cp4i'
 #   -r : <REPO> (string), Defaults to 'https://github.com/IBM/cp4i-deployment-samples.git'
 #   -b : <BRANCH> (string), Defaults to 'main'
@@ -20,6 +21,8 @@
 #   -o : <OMIT_INITIAL_SETUP> (optional), Parameter to decide if initial setup is to be done or not, Defaults to false
 #   -f : <DEFAULT_FILE_STORAGE> (string), Default to 'ibmc-file-gold-gid'
 #   -g : <DEFAULT_BLOCK_STORAGE> (string), Default to 'cp4i-block-performance'
+#   -A : <ACE_LICENSE> (String), Defaults to ""
+#   -M : <MQ_LICENSE> (String), Defaults to ""
 #
 #   With defaults values
 #     ./prereqs.sh
@@ -32,7 +35,7 @@ function divider() {
 }
 
 function usage() {
-  echo "Usage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -e <ELASTIC_NAMESPACE> -p <POSTGRES_NAMESPACE>  -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> [-o]"
+  echo "Usage: $0 [-a] -n <NAMESPACE> -r <REPO> -b <BRANCH> -e <ELASTIC_NAMESPACE> -p <POSTGRES_NAMESPACE>  -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> [-o] -A <ACE_LICENSE> -M <MQ_LICENSE>"
   divider
   exit 1
 }
@@ -52,8 +55,11 @@ OMIT_INITIAL_SETUP=false
 DEFAULT_FILE_STORAGE="ibmc-file-gold-gid"
 DEFAULT_BLOCK_STORAGE="cp4i-block-performance"
 
-while getopts "n:r:b:e:p:of:g:" opt; do
+while getopts "an:r:b:e:p:of:g:A:M" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
   n)
     NAMESPACE="$OPTARG"
     ;;
@@ -77,6 +83,12 @@ while getopts "n:r:b:e:p:of:g:" opt; do
     ;;
   g)
     DEFAULT_BLOCK_STORAGE="$OPTARG"
+    ;;
+  A)
+    ACE_LICENSE="$OPTARG"
+    ;;
+  M)
+    MQ_LICENSE="$OPTARG"
     ;;
   \?)
     usage
@@ -318,7 +330,7 @@ fi #setup-elastic-search.sh
 divider
 
 echo -e "$INFO [INFO] Building and deploying the EEI apps ..."
-if ! $CURRENT_DIR/build/build.sh -n $NAMESPACE -r $REPO -b $BRANCH -t $TKN -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE"; then
+if ! $CURRENT_DIR/build/build.sh -a -n $NAMESPACE -r $REPO -b $BRANCH -t $TKN -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -A $ACE_LICENSE -M $MQ_LICENSE; then
   echo -e "\n$CROSS [ERROR] Failed to build/deploy the EEI apps in the '$NAMESPACE' namespace"
   exit 1
 else

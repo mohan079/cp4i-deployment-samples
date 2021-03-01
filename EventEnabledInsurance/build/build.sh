@@ -12,25 +12,28 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -n : <namespace> (string), Defaults to 'cp4i'
 #   -r : <REPO> (string), Defaults to 'https://github.com/IBM/cp4i-deployment-samples.git'
 #   -b : <BRANCH> (string), Defaults to 'main'
 #   -t : <TKN-path> (string), Default to 'tkn'
 #   -f : <DEFAULT_FILE_STORAGE> (string), Default to 'ibmc-file-gold-gid'
 #   -g : <DEFAULT_BLOCK_STORAGE> (string), Default to 'cp4i-block-performance'
+#   -A : <ACE_LICENSE> (String), Defaults to ""
+#   -M : <MQ_LICENSE> (String), Defaults to ""
 #
 #   With defaults values
 #     ./build.sh
 #
 #   With overridden values
-#     ./build.sh -n <namespace> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>
+#     ./build.sh [-a] -n <namespace> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -A <ACE_LICENSE> -M <MQ_LICENSE>
 
 function divider() {
   echo -e "\n-------------------------------------------------------------------------------------------------------------------\n"
 }
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <REPO> -b <BRANCH> -t <TKN-path> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>"
+  echo "Usage: $0 [-a] -n <namespace> -r <REPO> -b <BRANCH> -t <TKN-path> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -A <ACE_LICENSE> -M <MQ_LICENSE>"
   divider
   exit 1
 }
@@ -46,26 +49,38 @@ BRANCH="main"
 TKN=tkn
 DEFAULT_FILE_STORAGE="ibmc-file-gold-gid"
 DEFAULT_BLOCK_STORAGE="cp4i-block-performance"
+LICENSE_ACCEPT="false"
+ACE_LICENSE=""
+MQ_LICENSE=""
 
-while getopts "n:r:b:t:f:g:" opt; do
+while getopts "ab:f:g:n:r:t:A:M" opt; do
   case ${opt} in
-  n)
-    namespace="$OPTARG"
-    ;;
-  r)
-    REPO="$OPTARG"
+  a)
+    LICENSE_ACCEPT="true"
     ;;
   b)
     BRANCH="$OPTARG"
-    ;;
-  t)
-    TKN="$OPTARG"
     ;;
   f)
     DEFAULT_FILE_STORAGE="$OPTARG"
     ;;
   g)
     DEFAULT_BLOCK_STORAGE="$OPTARG"
+    ;;
+  n)
+    namespace="$OPTARG"
+    ;;
+  r)
+    REPO="$OPTARG"
+    ;;
+  t)
+    TKN="$OPTARG"
+    ;;
+  A)
+    ACE_LICENSE="$OPTARG"
+    ;;
+  M)
+    MQ_LICENSE="$OPTARG"
     ;;
   \?)
     usage
@@ -116,20 +131,26 @@ fi
 divider
 
 CONFIGURATIONS="[serverconf-$SUFFIX, keystore-$SUFFIX, application.kdb, application.sth, application.jks, policyproject-$SUFFIX, setdbparms-$SUFFIX]"
-
-echo "INFO: Creating the pipeline to build and deploy the EEI apps in '$namespace' namespace"
-if cat $CURRENT_DIR/pipeline.yaml |
-  sed "s#{{NAMESPACE}}#$namespace#g;" |
-  sed "s#{{CONFIGURATIONS}}#'$CONFIGURATIONS'#g;" |
-  sed "s#{{FORKED_REPO}}#$REPO#g;" |
-  sed "s#{{BRANCH}}#$BRANCH#g;" |
-  oc apply -n ${namespace} -f -; then
-  echo -e "\n$tick INFO: Successfully applied the pipeline to build and deploy the EEI apps in '$namespace' namespace"
+echo -e "$INFO [INFO] Checking if the License for ace-integration-server has been accepted"
+if $LICENSE_ACCEPT; then
+  echo "INFO: Creating the pipeline to build and deploy the EEI apps in '$namespace' namespace"
+  if cat $CURRENT_DIR/pipeline.yaml |
+    sed "s#{{NAMESPACE}}#$namespace#g;" |
+    sed "s#{{CONFIGURATIONS}}#'$CONFIGURATIONS'#g;" |
+    sed "s#{{FORKED_REPO}}#$REPO#g;" |
+    sed "s#{{BRANCH}}#$BRANCH#g;" |
+    sed "s#{{ACE_LICENSE}}#$ACE_LICENSE#g;" |
+    sed "s#{{MQ_LICENSE}}#$MQ_LICENSE#g;" |
+    oc apply -n ${namespace} -f -; then
+    echo -e "\n$tick INFO: Successfully applied the pipeline to build and deploy the EEI apps in '$namespace' namespace"
+  else
+    echo -e "\n$cross ERROR: Failed to apply the pipeline to build and deploy the EEI apps in '$namespace' namespace"
+    exit 1
+  fi #pipeline.yaml
 else
-  echo -e "\n$cross ERROR: Failed to apply the pipeline to build and deploy the EEI apps in '$namespace' namespace"
-  exit 1
-fi #pipeline.yaml
-
+      echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build and deploy to '$NAMESPACE' namespace for the dev pipeline of the driveway dent deletion demo"
+    SUM=$((SUM + 1))
+fi
 divider
 
 PIPELINERUN_UID=$(

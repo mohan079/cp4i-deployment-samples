@@ -123,7 +123,7 @@ spec:
         - name: script
           value: "products/bash/release-mq.sh"
         - name: params
-          value: " -n {{NAMESPACE}} -r mq-eei -i image-registry.openshift-image-registry.svc:5000/{{NAMESPACE}}/mq-eei:latest -q eei"
+          value: " -a -n {{NAMESPACE}} -r mq-eei -i image-registry.openshift-image-registry.svc:5000/{{NAMESPACE}}/mq-eei:latest -q eei -l {{MQ_LICENSE}} "
       workspaces:
         - name: git-source
           workspace: git-source
@@ -180,7 +180,7 @@ spec:
         - name: script
           value: "products/bash/release-ace-integration-server.sh"
         - name: params
-          value: " -n '{{NAMESPACE}}' -r 'ace-rest-int-srv-eei' -i image-registry.openshift-image-registry.svc:5000/{{NAMESPACE}}/ace-rest-eei:latest -c {{CONFIGURATIONS}} -p 1"
+          value: " -a -n '{{NAMESPACE}}' -r 'ace-rest-int-srv-eei' -i image-registry.openshift-image-registry.svc:5000/{{NAMESPACE}}/ace-rest-eei:latest -c {{CONFIGURATIONS}} -p 1 -l {{ACE_LICENSE}}"
       workspaces:
         - name: git-source
           workspace: git-source
@@ -195,7 +195,7 @@ spec:
         - name: script
           value: "products/bash/release-ace-integration-server.sh"
         - name: params
-          value: " -n '{{NAMESPACE}}' -r 'ace-db-writer-int-srv-eei' -i image-registry.openshift-image-registry.svc:5000/{{NAMESPACE}}/ace-db-writer-eei:latest -c {{CONFIGURATIONS}} -p 1"
+          value: "-a -n '{{NAMESPACE}}' -r 'ace-db-writer-int-srv-eei' -i image-registry.openshift-image-registry.svc:5000/{{NAMESPACE}}/ace-db-writer-eei:latest -c {{CONFIGURATIONS}} -p 1 -l {{ACE_LICENSE}}"
       workspaces:
         - name: git-source
           workspace: git-source

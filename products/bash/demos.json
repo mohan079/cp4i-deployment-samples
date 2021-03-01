@@ -17,6 +17,11 @@
       },
       "samplesRepoBranch": "DEMO_DEPLOYMENT_BRANCH"
     },
+    "license": {
+      "accept": "LICENSE_ACCEPT",
+      "ace": "ACE_LICENSE",
+      "mq": "MQ_LICENSE"
+    },
     "apic": {
       "emailAddress": "PORG_ADMIN_EMAIL",
       "mailServerHost": "MAIL_SERVER_HOST",

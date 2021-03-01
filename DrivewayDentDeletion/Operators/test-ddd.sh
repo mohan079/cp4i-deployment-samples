@@ -13,18 +13,21 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
-#   -n : <NAMESPACE> (string), namespace for the e2e test for DDD. Defaults to "cp4i"
-#   -r : <REPO> (string), Defaults to 'https://github.com/IBM/cp4i-deployment-samples.git'
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -b : <BRANCH> (string), Defaults to 'main'
 #   -f : <DEFAULT_FILE_STORAGE> (string), Default to 'ibmc-file-gold-gid'
 #   -g : <DEFAULT_BLOCK_STORAGE> (string), Default to 'cp4i-block-performance'
+#   -n : <NAMESPACE> (string), namespace for the e2e test for DDD. Defaults to "cp4i"
+#   -r : <REPO> (string), Defaults to 'https://github.com/IBM/cp4i-deployment-samples.git'
+#   -A : <ACE_LICENSE> (String), Defaults to ""
+#   -M : <MQ_LICENSE> (String), Defaults to ""
 #
 # USAGE:
 #   With defaults values
 #     ./test-ddd.sh
 #
 #   Overriding the default parameters
-#     ./test-ddd.sh -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>
+#     ./test-ddd.sh -a -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -n <NAMESPACE> -r <REPO> -A L-APEX-LEGNDS -M L-RONN_HUBBRD
 #
 
 function divider() {
@@ -32,27 +35,34 @@ function divider() {
 }
 
 function usage() {
-  echo -e "\nUsage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>"
+  echo -e "\nUsage: $0 -a -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -n <NAMESPACE> -r <REPO> -A <ACE-LICENSE> -M <MQ_LICENSE>"
   divider
   exit 1
 }
 
-NAMESPACE="cp4i"
-CURRENT_DIR=$(dirname $0)
 TICK="\xE2\x9C\x85"
 CROSS="\xE2\x9D\x8C"
 ALL_DONE="\xF0\x9F\x92\xAF"
 INFO="\xE2\x84\xB9"
 MISSING_PARAMS="false"
+CURRENT_DIR=$(dirname $0)
+
 BRANCH="main"
-FORKED_REPO="https://github.com/IBM/cp4i-deployment-samples.git"
-TKN_INSTALLED=false
-JQ_INSTALLED=false
 DEFAULT_FILE_STORAGE="ibmc-file-gold-gid"
 DEFAULT_BLOCK_STORAGE="cp4i-block-performance"
+FORKED_REPO="https://github.com/IBM/cp4i-deployment-samples.git"
+JQ_INSTALLED=false
+LICENSE_ACCEPT=false
+ACE_LICENSE=""
+MQ_LICENSE=""
+NAMESPACE="cp4i"
+TKN_INSTALLED=false
 
-while getopts "n:r:b:f:g:" opt; do
+while getopts "an:r:b:f:g:A:M:" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
   n)
     NAMESPACE="$OPTARG"
     ;;
@@ -67,6 +77,12 @@ while getopts "n:r:b:f:g:" opt; do
     ;;
   g)
     DEFAULT_BLOCK_STORAGE="$OPTARG"
+    ;;
+  A)
+    ACE_LICENSE="$OPTARG"
+    ;;
+  M)
+    MQ_LICENSE="$OPTARG"
     ;;
   \?)
     usage
@@ -266,7 +282,7 @@ divider
 # -------------------------------------------- DEV PIPELINE RUN -----------------------------------------------------------
 
 echo -e "$INFO [INFO] Applying the dev pipeline resources...\n"
-if ! $CURRENT_DIR/cicd-apply-dev-pipeline.sh -n "$NAMESPACE" -r "$FORKED_REPO" -b "$BRANCH" -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -a "$LICENSE_ACCEPT" -l "$LICENSE"; then
+if ! $CURRENT_DIR/cicd-apply-dev-pipeline.sh -n "$NAMESPACE" -r "$FORKED_REPO" -b "$BRANCH" -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -a -A $ACE_LICENSE -M $MQ_LICENSE; then
   echo -e "$CROSS [ERROR] Could not apply the dev pipeline resources."
   exit 1
 fi
@@ -278,7 +294,7 @@ run_continuous_load_script "$NAMESPACE" "false" "dev" "dev"
 # -------------------------------------------- TEST PIPELINE RUN ----------------------------------------------------------
 
 echo -e "$INFO [INFO] Applying the test pipeline resources...\n"
-if ! $CURRENT_DIR/cicd-apply-test-pipeline.sh -n "$NAMESPACE" -r "$FORKED_REPO" -b "$BRANCH" -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -a "$LICENSE_ACCEPT" -l "$LICENSE"; then
+if ! $CURRENT_DIR/cicd-apply-test-pipeline.sh -n "$NAMESPACE" -r "$FORKED_REPO" -b "$BRANCH" -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -a -A $ACE_LICENSE -m $MQ_LICENSE; then
   echo -e "$CROSS [ERROR] Could not apply the test pipeline resources."
   exit 1
 fi
@@ -292,7 +308,7 @@ run_continuous_load_script "$NAMESPACE" "false" "test" "test"
 # -------------------------------------------- TEST APIC PIPELINE RUN -----------------------------------------------------
 
 echo -e "$INFO [INFO] Applying the test apic pipeline resources...\n"
-if ! $CURRENT_DIR/cicd-apply-test-apic-pipeline.sh -n "$NAMESPACE" -r "$FORKED_REPO" -b "$BRANCH" -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -a "$LICENSE_ACCEPT" -l "$LICENSE"; then
+if ! $CURRENT_DIR/cicd-apply-test-apic-pipeline.sh -n "$NAMESPACE" -r "$FORKED_REPO" -b "$BRANCH" -f "$DEFAULT_FILE_STORAGE" -g "$DEFAULT_BLOCK_STORAGE" -a -A $ACE_LICENSE -m $MQ_LICENSE; then
   echo -e "$CROSS [ERROR] Could not apply the test apic pipeline resources."
   exit 1
 fi

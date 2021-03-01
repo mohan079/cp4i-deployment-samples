@@ -12,53 +12,53 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
-#   -n : <NAMESPACE> (string), Defaults to 'cp4i'
-#   -r : <REPO> (string), Defaults to 'https://github.com/IBM/cp4i-deployment-samples.git'
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -b : <BRANCH> (string), Defaults to 'main'
 #   -f : <DEFAULT_FILE_STORAGE> (string), Default to 'ibmc-file-gold-gid'
 #   -g : <DEFAULT_BLOCK_STORAGE> (string), Default to 'cp4i-block-performance'
-#   -l : <LICENSE> (String), Defaults to ""
-#   -a : <LICENSE_ACCEPT> (boolean), Defaults to "false"
+#   -n : <NAMESPACE> (string), Defaults to 'cp4i'
+#   -r : <REPO> (string), Defaults to 'https://github.com/IBM/cp4i-deployment-samples.git'
+#   -A : <ACE_LICENSE> (String), Defaults to ""
+#   -M : <MQ_LICENSE> (String), Defaults to ""
 #
 #   With defaults values
 #     ./cicd-apply-test-pipeline.sh
 #
 #   With overridden values
-#     ./cicd-apply-test-pipeline.sh -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -a <LICENSE_ACCEPT> -l <LICENSE>
+#     ./cicd-apply-test-pipeline.sh [-a] -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -A L-APEX-LEGNDS -M L-RONN-HUBBRD
 
 function divider() {
   echo -e "\n-------------------------------------------------------------------------------------------------------------------\n"
 }
 
 function usage() {
-  echo "Usage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -a <LICENSE_ACCEPT> -l <LICENSE>"
+  echo "Usage: $0 [-a] -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -A <ACE_LICENSE> -M <MQ_LICENSE>"
   divider
   exit 1
 }
 
-# default vars
-CURRENT_DIR=$(dirname $0)
-NAMESPACE="cp4i"
-BRANCH="main"
-REPO="https://github.com/IBM/cp4i-deployment-samples.git"
+INFO="\xE2\x84\xB9"
 TICK="\xE2\x9C\x85"
 CROSS="\xE2\x9D\x8C"
 ALL_DONE="\xF0\x9F\x92\xAF"
-INFO="\xE2\x84\xB9"
 SUM=0
-MISSING_PARAMS="false"
+CURRENT_DIR=$(dirname $0)
+
+# default vars
+BRANCH="main"
 DEFAULT_FILE_STORAGE="ibmc-file-gold-gid"
 DEFAULT_BLOCK_STORAGE="cp4i-block-performance"
-LICENSE=""
+MISSING_PARAMS="false"
+NAMESPACE="cp4i"
+REPO="https://github.com/IBM/cp4i-deployment-samples.git"
 LICENSE_ACCEPT="false"
+ACE_LICENSE=""
+MQ_LICENSE=""
 
-while getopts "n:r:b:f:g:l:a:" opt; do
+while getopts "ab:f:g:n:r:A:M:" opt; do
   case ${opt} in
-  n)
-    NAMESPACE="$OPTARG"
-    ;;
-  r)
-    REPO="$OPTARG"
+  a)
+    LICENSE_ACCEPT="true"
     ;;
   b)
     BRANCH="$OPTARG"
@@ -69,11 +69,17 @@ while getopts "n:r:b:f:g:l:a:" opt; do
   g)
     DEFAULT_BLOCK_STORAGE="$OPTARG"
     ;;
-  l)
-    LICENSE="$OPTARG"
+  n)
+    NAMESPACE="$OPTARG"
     ;;
-  a)
-    LICENSE_ACCEPT="$OPTARG"
+  r)
+    REPO="$OPTARG"
+    ;;
+  A)
+    ACE_LICENSE="$OPTARG"
+    ;;
+  M)
+    MQ_LICENSE="$OPTARG"
     ;;
   \?)
     usage
@@ -182,14 +188,14 @@ divider
 
 # create the pipeline to run tasks to build, deploy, test e2e and push to test namespace
 echo -e "$INFO [INFO] Checking if the License for ace-integration-server has been accepted"
-if $LICENSE_ACCEPT -eq "true"; then
+if $LICENSE_ACCEPT; then
   echo -e "$INFO [INFO] Create the pipeline to run tasks to build, deploy, test e2e in '$NAMESPACE' namespace for the test pipeline of the driveway dent deletion demo"
   if cat $CURRENT_DIR/cicd-test/cicd-pipeline.yaml |
-    sed "s#{{NAMESPACE}}#$NAMESPACE#g;" |
-    sed "s#{{FORKED_REPO}}#$REPO#g;" |
+    sed "s#{{ACE_LICENSE}}#$ACE_LICENSE#g;" |
     sed "s#{{BRANCH}}#$BRANCH#g;" |
-    sed "s#{{LICENSE}}#$LICENSE#g;" |
-    sed "s#{{LICENSE_ACCEPT}}#$LICENSE_ACCEPT#g;" |
+    sed "s#{{FORKED_REPO}}#$REPO#g;" |
+    sed "s#{{MQ_LICENSE}}#$MQ_LICENSE#g;" |
+    sed "s#{{NAMESPACE}}#$NAMESPACE#g;" |
     oc apply -f -; then
     echo -e "\n$TICK [SUCCESS] Successfully applied the pipeline to run tasks to build, deploy, test e2e in '$NAMESPACE' namespace"
   else

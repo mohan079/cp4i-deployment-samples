@@ -58,28 +58,31 @@ metadata:
   name: deploy-task
 spec:
   params:
-    - name: imageTag
-      type: string
-      description: The image tag
-    - name: imageName
-      type: string
-      description: The image name
-    - name: releaseName
-      type: string
-      description: release name of the deployment
-    - name: releaseScript
-      type: string
-      description: release name of script
-    - name: namespace
-      type: string
-      description: release namespace
     - name: acePolicyProjectParam
       type: string
       description: Policy project configuration for ACE integration server
       default: ""
+    - name: imageName
+      type: string
+      description: Image name
+    - name: imageTag
+      type: string
+      description: Image tag
+    - name: license
+      type: string
+      description: License
+    - name: namespace
+      type: string
+      description: Release namespace
+    - name: releaseName
+      type: string
+      description: Release name of the deployment
+    - name: releaseScript
+      type: string
+      description: Name of release script
   workspaces:
     - name: git-source
   steps:
     - name: oc
       image: quay.io/openshift/origin-cli:latest
-      script: "/workspace/git-source/products/bash/$(params.releaseScript) -n $(params.namespace) -r $(params.releaseName) -i image-registry.openshift-image-registry.svc:5000/$(params.namespace)/$(params.imageName):$(params.imageTag) {{TRACING}} $(params.acePolicyProjectParam)"
+      script: "/workspace/git-source/products/bash/$(params.releaseScript) -a -i image-registry.openshift-image-registry.svc:5000/$(params.namespace)/$(params.imageName):$(params.imageTag) -l $(params.license) -n $(params.namespace) -r $(params.releaseName) {{TRACING}} $(params.acePolicyProjectParam)"

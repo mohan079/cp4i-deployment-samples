@@ -13,6 +13,8 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
+#   -l : <LICENSE> (string), Defaults to ""
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -r : <dashboard-release-name> (string), Defaults to "ace-dashboard-demo"
 #
@@ -21,18 +23,27 @@
 #     ./release-ace-dashboard.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-ace-dashboard.sh -n cp4i-prod -r prod
+#     ./release-ace-dashboard.sh [-a] -l L-APEX-LEGNDS -n cp4i-prod -r prod
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <dashboard-release-name>"
+  echo "Usage: $0 [-a] -l <LICENSE> -n <namespace> -r <dashboard-release-name>"
 }
 
-namespace="cp4i"
 dashboard_release_name="ace-dashboard-demo"
-storage="ibmc-file-gold-gid"
+LICENSE=""
+LICENSE_ACCEPT="false"
+namespace="cp4i"
 production="false"
-while getopts "n:r:s:p" opt; do
+storage="ibmc-file-gold-gid"
+
+while getopts "al:n:r:s:p" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
+  l)
+    LICENSE="$OPTARG"
+    ;;
   n)
     namespace="$OPTARG"
     ;;
@@ -85,8 +96,8 @@ metadata:
   fi)
 spec:
   license:
-    accept: true
-    license: L-APEH-BPUCJK
+    accept: ${LICENSE_ACCEPT}
+    license: ${LICENSE}
     use: ${use}
   replicas: 1
   storage:

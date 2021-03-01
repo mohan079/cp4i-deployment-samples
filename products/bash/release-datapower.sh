@@ -13,45 +13,50 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
-#   -n : <namespace> (string), Defaults to "cp4i"
-#   -r : <release-name> (string), Defaults to "datapower"
-#   -p : indicates production mode
 #   -a : admin password, defaults to "admin"
+#   -l : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
+#   -n : <namespace> (string), Defaults to "cp4i"
+#   -p : indicates production mode
+#   -r : <release-name> (string), Defaults to "datapower"
 #
 # USAGE:
 #   With defaults values
 #     ./release-datapower.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-datapower -n cp4i-prod -r datapower -p -a admin
+#     ./release-datapower -a admin [-l] -n cp4i-prod -p -r datapower
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <release-name> [-t]"
+  echo "Usage: $0 [-l] -n <namespace> -r <release-name> [-t]"
 }
 
 SCRIPT_DIR=$(dirname $0)
 
-namespace="cp4i"
-release_name="datapower"
-production="false"
 admin_password="admin"
 flavour="developers-limited"
+LICENSE_ACCEPT="false"
 memory_limit="4Gi"
+namespace="cp4i"
+production="false"
+release_name="datapower"
 replicas=1
 
-while getopts "n:r:pa:" opt; do
+while getopts "a:ln:pr:" opt; do
   case ${opt} in
+  a)
+    admin_password="$OPTARG"
+    ;;
+  l)
+    LICENSE_ACCEPT="true"
+    ;;
   n)
     namespace="$OPTARG"
-    ;;
-  r)
-    release_name="$OPTARG"
     ;;
   p)
     production="true"
     ;;
-  a)
-    admin_password="$OPTARG"
+  r)
+    release_name="$OPTARG"
     ;;
   \?)
     usage
@@ -95,7 +100,7 @@ spec:
     - name: DATAPOWER_LOG_LEVEL
       value: '3'
   license:
-    accept: true
+    accept: ${LICENSE_ACCEPT}
     use: ${flavour}
   replicas: ${replicas}
   resources:

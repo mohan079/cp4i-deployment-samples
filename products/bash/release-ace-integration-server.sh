@@ -10,9 +10,11 @@
 
 #******************************************************************************
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -c : <ace_policy_names> (boolean), Parameter for changing ace config
 #   -d : <POLICY_PROJECT_TYPE> (string), Policyproject configuration, Defaults to "policyproject-ddd-dev"
 #   -i : <is_image_name> (string), Defaults to "image-registry.openshift-image-registry.svc:5000/cp4i/ace-11.0.0.9-r2:new-1"
+#   -l : <LICENSE> (string), Defaults to ""
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -p : <ace_replicas> (int), allow changing the number of pods (replicas), Defaults to 2
 #   -r : <is_release_name> (string), Defaults to "ace-is"
@@ -24,32 +26,39 @@
 #     ./release-ace-integration-server.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-ace-integration-server -d policyproject-ddd-test -n cp4i -r cp4i-bernie-ace
+#     ./release-ace-integration-server [-a] -d policyproject-ddd-test -l L-APEX-LEGNDS -n cp4i -r cp4i-bernie-ace
 
 function divider() {
   echo -e "\n-------------------------------------------------------------------------------------------------------------------\n"
 }
 
 function usage() {
-  echo "Usage: $0 -c <ace_policy_names> -d <POLICY_PROJECT_TYPE> -i <is_image_name> -n <namespace> -p <ace_replicas> -r <is_release_name> -t -z <tracing_namespace>"
+  echo "Usage: $0 [-a] -c <ace_policy_names> -d <POLICY_PROJECT_TYPE> -i <is_image_name> -l <LICENSE> -n <namespace> -p <ace_replicas> -r <is_release_name> -t -z <tracing_namespace>"
   divider
   exit 1
 }
 
 tick="\xE2\x9C\x85"
 cross="\xE2\x9D\x8C"
-namespace="cp4i"
+CURRENT_DIR=$(dirname $0)
+
+ace_replicas="2"
+LICENSE=""
+LICENSE_ACCEPT="false"
 is_image_name=""
 is_release_name="ace-is"
+namespace="cp4i"
+POLICY_PROJECT_TYPE="policyproject-ddd-dev"
 tracing_enabled="false"
 tracing_namespace=""
-CURRENT_DIR=$(dirname $0)
-POLICY_PROJECT_TYPE="policyproject-ddd-dev"
-ace_replicas="2"
+
 echo "Current directory: $CURRENT_DIR"
 
-while getopts "c:d:i:n:p:r:tz:" opt; do
+while getopts "ac:d:i:l:n:p:r:tz:" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
   c)
     ace_policy_names="$OPTARG"
     ;;
@@ -58,6 +67,9 @@ while getopts "c:d:i:n:p:r:tz:" opt; do
     ;;
   i)
     is_image_name="$OPTARG"
+    ;;
+  l)
+    LICENSE="$OPTARG"
     ;;
   n)
     namespace="$OPTARG"
@@ -126,8 +138,8 @@ spec:
   configurations: $ace_policy_names
   designerFlowsOperationMode: disabled
   license:
-    accept: true
-    license: L-APEH-BPUCJK
+    accept: ${LICENSE_ACCEPT}
+    license: ${LICENSE}
     use: CloudPakForIntegrationProduction
   replicas: ${ace_replicas}
   router:

@@ -13,6 +13,7 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -r : <release-name> (string), Defaults to "es-demo"
 #
@@ -21,30 +22,34 @@
 #     ./release-es.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-es.sh -n cp4i-prod -r prod
+#     ./release-es.sh [-a] -n cp4i-prod -r prod
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <release-name>"
+  echo "Usage: $0 [-a] -n <namespace> -r <release-name>"
 }
 
+LICENSE_ACCEPT="false"
 namespace="cp4i"
-release_name="es-demo"
 production="false"
+release_name="es-demo"
 storageClass=""
 
-while getopts "n:r:pc:" opt; do
+while getopts "ac:n:pr:" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
+  c)
+    storageClass="$OPTARG"
+    ;;
   n)
     namespace="$OPTARG"
-    ;;
-  r)
-    release_name="$OPTARG"
     ;;
   p)
     production="true"
     ;;
-  c)
-    storageClass="$OPTARG"
+  r)
+    release_name="$OPTARG"
     ;;
   \?)
     usage
@@ -77,7 +82,7 @@ metadata:
 spec:
   version: 10.1.0
   license:
-    accept: true
+    accept: ${LICENSE_ACCEPT}
     use: CloudPakForIntegrationProduction
   adminApi: {}
   adminUI: {}
@@ -136,7 +141,7 @@ metadata:
 spec:
   version: 10.1.0
   license:
-    accept: true
+    accept: ${LICENSE_ACCEPT}
     use: CloudPakForIntegrationNonProduction
   adminApi: {}
   adminUI: {}

@@ -13,6 +13,7 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -r : <release-name> (string), Defaults to "ademo"
 #   -t : optional flag to enable tracing
@@ -22,19 +23,23 @@
 #     ./release-apic.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-apic.sh -n cp4i-prod -r prod
+#     ./release-apic.sh [-a] -n cp4i-prod -r prod
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <release-name> [-t]"
+  echo "Usage: $0 [-a] -n <namespace> -r <release-name> [-t]"
 }
 
+LICENSE_ACCEPT="false"
 namespace="cp4i"
 release_name="ademo"
 tracing="false"
 production="false"
 
-while getopts "n:r:tp" opt; do
+while getopts "an:r:tp" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
   n)
     namespace="$OPTARG"
     ;;
@@ -86,7 +91,7 @@ metadata:
 spec:
   version: 10.0.1.0
   license:
-    accept: true
+    accept: ${LICENSE_ACCEPT}
     use: production
   profile: ${profile}
   gateway:

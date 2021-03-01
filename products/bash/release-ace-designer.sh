@@ -13,6 +13,8 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
+#   -l : <LICENSE> (string), Defaults to ""
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -e : <designer-release-name> (string), Defaults to "ace-designer-demo"
 #
@@ -21,17 +23,26 @@
 #     ./release-ace-designer.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-ace-designer.sh -n cp4i-prod -r prod
+#     ./release-ace-designer.sh [-a] -l L-APEX-LEGNDS -n cp4i-prod -r prod
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <designer_release_name>"
+  echo "Usage: $0 [-a] -l <LICENSE> -n <namespace> -r <designer_release_name>"
 }
 
-namespace="cp4i"
 designer_release_name="ace-designer-demo"
+LICENSE=""
+LICENSE_ACCEPT="false"
+namespace="cp4i"
 storage="ibmc-block-gold"
-while getopts "n:r:s:" opt; do
+
+while getopts "al:n:r:s:" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
+  l)
+    LICENSE="$OPTARG"
+    ;;
   n)
     namespace="$OPTARG"
     ;;
@@ -88,8 +99,8 @@ spec:
       class: ${storage}
   designerFlowsOperationMode: local
   license:
-    accept: true
-    license: L-APEH-BPUCJK
+    accept: ${LICENSE_ACCEPT}
+    license: ${LICENSE}
     use: CloudPakForIntegrationNonProduction
   replicas: 1
   version: 11.0.0.10

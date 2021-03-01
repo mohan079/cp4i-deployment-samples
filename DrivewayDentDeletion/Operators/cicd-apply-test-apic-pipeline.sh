@@ -17,19 +17,21 @@
 #   -b : <BRANCH> (string), Defaults to 'main'
 #   -f : <DEFAULT_FILE_STORAGE> (string), Default to 'ibmc-file-gold-gid'
 #   -g : <DEFAULT_BLOCK_STORAGE> (string), Default to 'cp4i-block-performance'
+#   -l : <LICENSE> (String), Defaults to ""
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to "false"
 #
 #   With defaults values
 #     ./cicd-apply-test-apic-pipeline.sh
 #
 #   With overridden values
-#     ./cicd-apply-test-apic-pipeline.sh -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>
+#     ./cicd-apply-test-apic-pipeline.sh -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -a <LICENSE_ACCEPT> -l <LICENSE>
 
 function divider() {
   echo -e "\n-------------------------------------------------------------------------------------------------------------------\n"
 }
 
 function usage() {
-  echo "Usage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>"
+  echo "Usage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -a <LICENSE_ACCEPT> -l <LICENSE>"
   divider
   exit 1
 }
@@ -47,8 +49,10 @@ SUM=0
 MISSING_PARAMS="false"
 DEFAULT_FILE_STORAGE="ibmc-file-gold-gid"
 DEFAULT_BLOCK_STORAGE="cp4i-block-performance"
+LICENSE=""
+LICENSE_ACCEPT="false"
 
-while getopts "n:r:b:f:g:" opt; do
+while getopts "n:r:b:f:g:l:a:" opt; do
   case ${opt} in
   n)
     NAMESPACE="$OPTARG"
@@ -64,6 +68,12 @@ while getopts "n:r:b:f:g:" opt; do
     ;;
   g)
     DEFAULT_BLOCK_STORAGE="$OPTARG"
+    ;;
+  l)
+    LICENSE="$OPTARG"
+    ;;
+  a)
+    LICENSE_ACCEPT="$OPTARG"
     ;;
   \?)
     usage
@@ -157,16 +167,24 @@ fi
 divider
 
 # create the pipeline to run tasks to build, deploy, test e2e and push to test namespace
-echo -e "$INFO [INFO] Create the pipeline to run tasks to build, deploy, test e2e in '$NAMESPACE' namespace for the test apic pipeline of the driveway dent deletion demo\n"
-if cat $CURRENT_DIR/cicd-test-apic/cicd-pipeline.yaml |
-  sed "s#{{NAMESPACE}}#$NAMESPACE#g;" |
-  sed "s#{{FORKED_REPO}}#$REPO#g;" |
-  sed "s#{{BRANCH}}#$BRANCH#g;" |
-  oc apply -f -; then
-  echo -e "\n$TICK [SUCCESS] Successfully applied the pipeline to run tasks to build, deploy, test e2e in '$NAMESPACE' namespace for the test apic pipeline of the driveway dent deletion demo"
+echo -e "$INFO [INFO] Checking if the License for ace-integration-server has been accepted"
+if $LICENSE_ACCEPT -eq "true"; then
+  echo -e "$INFO [INFO] Create the pipeline to run tasks to build, deploy, test e2e in '$NAMESPACE' namespace for the test apic pipeline of the driveway dent deletion demo\n"
+  if cat $CURRENT_DIR/cicd-test-apic/cicd-pipeline.yaml |
+    sed "s#{{NAMESPACE}}#$NAMESPACE#g;" |
+    sed "s#{{FORKED_REPO}}#$REPO#g;" |
+    sed "s#{{BRANCH}}#$BRANCH#g;" |
+    sed "s#{{LICENSE}}#$LICENSE#g;" |
+    sed "s#{{LICENSE_ACCEPT}}#$LICENSE_ACCEPT#g;" |
+    oc apply -f -; then
+    echo -e "\n$TICK [SUCCESS] Successfully applied the pipeline to run tasks to build, deploy, test e2e in '$NAMESPACE' namespace for the test apic pipeline of the driveway dent deletion demo"
+  else
+    echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build, deploy test e2e in '$NAMESPACE' namespace for the test apic pipeline of the driveway dent deletion demo"
+    sum=$((sum + 1))
+  fi
 else
-  echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build, deploy test e2e in '$NAMESPACE' namespace for the test apic pipeline of the driveway dent deletion demo"
-  sum=$((sum + 1))
+  echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build, deploy test e2e in '$NAMESPACE' namespace. In order to proceed accept the license by setting -a to true"
+  SUM=$((SUM + 1))
 fi
 
 divider

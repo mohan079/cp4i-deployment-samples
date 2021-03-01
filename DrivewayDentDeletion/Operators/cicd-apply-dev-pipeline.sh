@@ -17,6 +17,8 @@
 #   -b : <BRANCH> (string), Defaults to 'main'
 #   -f : <DEFAULT_FILE_STORAGE> (string), Default to 'ibmc-file-gold-gid'
 #   -g : <DEFAULT_BLOCK_STORAGE> (string), Default to 'cp4i-block-performance'
+#   -l : <LICENSE> (String), Defaults to ""
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to "false"
 #
 #   With defaults values
 #     ./cicd-apply-dev-pipeline.sh
@@ -29,7 +31,7 @@ function divider() {
 }
 
 function usage() {
-  echo "Usage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE>"
+  echo "Usage: $0 -n <NAMESPACE> -r <REPO> -b <BRANCH> -f <DEFAULT_FILE_STORAGE> -g <DEFAULT_BLOCK_STORAGE> -a <LICENSE_ACCEPT> -l <LICENSE>"
   divider
   exit 1
 }
@@ -47,8 +49,11 @@ CURRENT_DIR=$(dirname $0)
 MISSING_PARAMS="false"
 DEFAULT_FILE_STORAGE="ibmc-file-gold-gid"
 DEFAULT_BLOCK_STORAGE="cp4i-block-performance"
+LICENSE=""
+LICENSE_ACCEPT="false"
 
-while getopts "n:r:b:f:g:" opt; do
+
+while getopts "n:r:b:f:g:l:a:" opt; do
   case ${opt} in
   n)
     NAMESPACE="$OPTARG"
@@ -64,6 +69,12 @@ while getopts "n:r:b:f:g:" opt; do
     ;;
   g)
     DEFAULT_BLOCK_STORAGE="$OPTARG"
+    ;;
+  l)
+    LICENSE="$OPTARG"
+    ;;
+  a)
+    LICENSE_ACCEPT="$OPTARG"
     ;;
   \?)
     usage
@@ -155,15 +166,23 @@ fi
 divider
 
 # create the pipeline to run tasks to build and deploy to dev
-echo -e "$INFO [INFO] Create the pipeline to run tasks for the dev pipeline of the driveway dent deletion demo in '$NAMESPACE' namespace"
-if cat $CURRENT_DIR/cicd-dev/cicd-pipeline.yaml |
-  sed "s#{{NAMESPACE}}#$NAMESPACE#g;" |
-  sed "s#{{FORKED_REPO}}#$REPO#g;" |
-  sed "s#{{BRANCH}}#$BRANCH#g;" |
-  oc apply -f -; then
-  echo -e "\n$TICK [SUCCESS] Successfully applied the pipeline to run tasks to build and deploy to '$NAMESPACE' namespace for the dev pipeline of the driveway dent deletion demo"
+echo -e "$INFO [INFO] Checking if the License for ace-integration-server has been accepted"
+if $LICENSE_ACCEPT -eq "true"; then
+  echo -e "$INFO [INFO] Create the pipeline to run tasks for the dev pipeline of the driveway dent deletion demo in '$NAMESPACE' namespace"
+  if cat $CURRENT_DIR/cicd-dev/cicd-pipeline.yaml |
+    sed "s#{{NAMESPACE}}#$NAMESPACE#g;" |
+    sed "s#{{FORKED_REPO}}#$REPO#g;" |
+    sed "s#{{BRANCH}}#$BRANCH#g;" |
+    sed "s#{{LICENSE}}#$LICENSE#g;" |
+    sed "s#{{LICENSE_ACCEPT}}#$LICENSE_ACCEPT#g;" |
+    oc apply -f -; then
+    echo -e "\n$TICK [SUCCESS] Successfully applied the pipeline to run tasks to build and deploy to '$NAMESPACE' namespace for the dev pipeline of the driveway dent deletion demo"
+  else
+    echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build and deploy to '$NAMESPACE' namespace for the dev pipeline of the driveway dent deletion demo"
+    SUM=$((SUM + 1))
+  fi
 else
-  echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build and deploy to '$NAMESPACE' namespace for the dev pipeline of the driveway dent deletion demo"
+  echo -e "\n$CROSS [ERROR] Failed to apply the pipeline to run tasks to build, deploy test e2e in '$NAMESPACE' namespace. In order to proceed accept the license by setting -a to true"
   SUM=$((SUM + 1))
 fi
 

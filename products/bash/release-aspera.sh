@@ -13,44 +13,49 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
-#   -n : <namespace> (string), Defaults to "cp4i"
-#   -r : <release-name> (string), Defaults to "ademo"
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -c : storage class to be used
 #   -k : absolute path to license key file
+#   -n : <namespace> (string), Defaults to "cp4i"
+#   -r : <release-name> (string), Defaults to "ademo"
 #
 # USAGE:
 #   With defaults values
 #     ./release-aspera.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-aspera -n cp4i-prod -r prod -k keyfile_path
+#     ./release-aspera [-a] -n cp4i-prod -r prod -k keyfile_path
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <release-name> [-t]"
+  echo "Usage: $0 [-a] -n <namespace> -r <release-name> [-t]"
 }
 
-namespace="cp4i"
-release_name="aspera"
-production="false"
+LICENSE_ACCEPT="false"
 license_key_filepath=""
+namespace="cp4i"
+production="false"
+release_name="aspera"
 storage_class=""
 
-while getopts "n:r:pk:c:" opt; do
+while getopts "ac:k:n:pr:" opt; do
   case ${opt} in
-  n)
-    namespace="$OPTARG"
+  a)
+    LICENSE_ACCEPT="true"
     ;;
-  r)
-    release_name="$OPTARG"
-    ;;
-  p)
-    production="true"
+  c)
+    storage_class="$OPTARG"
     ;;
   k)
     license_key_filepath="$OPTARG"
     ;;
-  c)
-    storage_class="$OPTARG"
+  n)
+    namespace="$OPTARG"
+    ;;
+  p)
+    production="true"
+    ;;
+  r)
+    release_name="$OPTARG"
     ;;
   \?)
     usage
@@ -103,8 +108,8 @@ spec:
     default:
       replicas: 3
   license:
-    accept: true
-    key: >- 
+    accept: ${LICENSE_ACCEPT}
+    key: >-
 ${license}
     use: CloudPakForIntegrationProduction
   redis:
@@ -146,7 +151,7 @@ spec:
       replicas: 1
   license:
     accept: true
-    key: >- 
+    key: >-
 ${license}
     use: CloudPakForIntegrationNonProduction
   redis:

@@ -78,13 +78,18 @@ ACE_WEATHER_CHATBOT_PRODUCTS_LIST=("aceDashboard" "aceDesigner" "apic" "assetRep
 ACE_WEATHER_CHATBOT_ADDONS_LIST=()
 
 # Default release name variables
-MQ_RELEASE_NAME="mq-demo"
-ACE_DESIGNER_RELEASE_NAME="ace-designer-demo"
-ASSET_REPOSITORY_RELEASE_NAME="ar-demo"
 ACE_DASHBOARD_RELEASE_NAME="ace-dashboard-demo"
+ACE_DESIGNER_RELEASE_NAME="ace-designer-demo"
 APIC_RELEASE_NAME="ademo"
+ASSET_REPOSITORY_RELEASE_NAME="ar-demo"
 EVENT_STREAM_RELEASE_NAME="es-demo"
+MQ_RELEASE_NAME="mq-demo"
 TRACING_RELEASE_NAME="tracing-demo"
+
+# Default license params
+LICENSE_ACCEPT="false"
+ACE_LICENSE=""
+MQ_LICENSE=""
 
 # Default APIC Configuration
 DEFAULT_APIC_EMAIL_ADDRESS="your@email.address"
@@ -366,6 +371,10 @@ GENERAL=$(echo $JSON | jq -r .spec.general)
 BLOCK_STORAGE_CLASS=$(echo $GENERAL | jq -r '.storage.block | if has("class") then .class else "cp4i-block-performance" end')
 FILE_STORAGE_CLASS=$(echo $GENERAL | jq -r '.storage.file | if has("class") then .class else "ibmc-file-gold-gid" end')
 SAMPLES_REPO_BRANCH=$(echo $GENERAL | jq -r 'if has("samplesRepoBranch") then .samplesRepoBranch else "'$SAMPLES_REPO_BRANCH'" end')
+LICENSE=$(echo $JSON | jq -r .spec.license)
+LICENSE_ACCEPT=$(echo $LICENSE | jq -r 'if has("accept") then .accept end')
+ACE_LICENSE=$(echo $LICENSE | jq -r 'if has("ace") then .ace end')
+MQ_LICENSE=$(echo $LICENSE | jq -r 'if has("mq") then .mq end')
 NAMESPACE=$(echo $JSON | jq -r .metadata.namespace)
 REQUIRED_DEMOS_JSON=$(echo $JSON | jq -c '.spec | if has("demos") then .demos else {} end')
 REQUIRED_PRODUCTS_JSON=$(echo $JSON | jq -c '.spec | if has("products") then .products else {} end')
@@ -626,9 +635,9 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
   mq)
     # if to enable or disable tracing while releasing MQ
     if [[ "$TRACING_ENABLED" == "true" ]]; then
-      RELEASE_MQ_PARAMS="-n $NAMESPACE -z $NAMESPACE -r $MQ_RELEASE_NAME -t"
+      RELEASE_MQ_PARAMS="$($LICENSE_ACCEPT && echo '-a') -l $MQ_LICENSE -n $NAMESPACE -r $MQ_RELEASE_NAME -t -z $NAMESPACE"
     else
-      RELEASE_MQ_PARAMS="-n $NAMESPACE -r $MQ_RELEASE_NAME"
+      RELEASE_MQ_PARAMS="$($LICENSE_ACCEPT && echo '-a') -l $MQ_LICENSE -n $NAMESPACE -r $MQ_RELEASE_NAME"
     fi
 
     echo -e "$INFO [INFO] Releasing MQ $ECHO_LINE '$MQ_RELEASE_NAME' with release parameters as '$RELEASE_APIC_PARAMS'...\n"
@@ -646,7 +655,7 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
 
   aceDesigner)
     echo -e "$INFO [INFO] Releasing ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-ace-designer.sh -n "$NAMESPACE" -r "$ACE_DESIGNER_RELEASE_NAME" -s "$BLOCK_STORAGE_CLASS"; then
+    if ! $SCRIPT_DIR/release-ace-designer.sh $($LICENSE_ACCEPT && echo "-a") -l $ACE_LICENSE -n "$NAMESPACE" -r "$ACE_DESIGNER_RELEASE_NAME" -s "$BLOCK_STORAGE_CLASS"; then
       update_conditions "Failed to release ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'" "Releasing"
       update_phase "Failed"
       FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
@@ -659,7 +668,7 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
 
   assetRepo)
     echo -e "$INFO [INFO] Releasing Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-ar.sh -n "$NAMESPACE" -r "$ASSET_REPOSITORY_RELEASE_NAME" -a "$FILE_STORAGE_CLASS" -c "$BLOCK_STORAGE_CLASS"; then
+    if ! $SCRIPT_DIR/release-ar.sh $($LICENSE_ACCEPT && echo "-a") -n "$NAMESPACE" -r "$ASSET_REPOSITORY_RELEASE_NAME" -a "$FILE_STORAGE_CLASS" -c "$BLOCK_STORAGE_CLASS"; then
       update_conditions "Failed to release Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'" "Releasing"
       update_phase "Failed"
       FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
@@ -672,7 +681,7 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
 
   aceDashboard)
     echo -e "$INFO [INFO] Releasing ACE dashboard $ECHO_LINE '$ACE_DASHBOARD_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-ace-dashboard.sh -n "$NAMESPACE" -r "$ACE_DASHBOARD_RELEASE_NAME" -s "$FILE_STORAGE_CLASS"; then
+    if ! $SCRIPT_DIR/release-ace-dashboard.sh $($LICENSE_ACCEPT && echo "-a") -l $ACE_LICENSE -n "$NAMESPACE" -r "$ACE_DASHBOARD_RELEASE_NAME" -s "$FILE_STORAGE_CLASS"; then
       update_conditions "Failed to release ACE dashboard $ECHO_LINE '$ACE_DASHBOARD_RELEASE_NAME'" "Releasing"
       update_phase "Failed"
       FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
@@ -693,9 +702,9 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
 
     # check if to enable or disable tracing while releasing APIC
     if [[ "$TRACING_ENABLED" == "true" ]]; then
-      RELEASE_APIC_PARAMS="-n $NAMESPACE -r $APIC_RELEASE_NAME -t"
+      RELEASE_APIC_PARAMS="$($LICENSE_ACCEPT && echo '-a') -n $NAMESPACE -r $APIC_RELEASE_NAME -t"
     else
-      RELEASE_APIC_PARAMS="-n $NAMESPACE -r $APIC_RELEASE_NAME"
+      RELEASE_APIC_PARAMS="$($LICENSE_ACCEPT && echo '-a') -n $NAMESPACE -r $APIC_RELEASE_NAME"
     fi
 
     echo -e "$INFO [INFO] Releasing APIC $ECHO_LINE '$APIC_RELEASE_NAME' with release parameters as '$RELEASE_APIC_PARAMS'...\n"
@@ -713,7 +722,7 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
 
   eventStreams)
     echo -e "$INFO [INFO] Releasing Event Streams $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-es.sh -n "$NAMESPACE" -r "$EVENT_STREAM_RELEASE_NAME"; then
+    if ! $SCRIPT_DIR/release-es.sh $($LICENSE_ACCEPT && echo "-a") -n "$NAMESPACE" -r "$EVENT_STREAM_RELEASE_NAME"; then
       update_conditions "Failed to release $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'" "Releasing"
       update_phase "Failed"
       FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
@@ -726,7 +735,7 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
 
   tracing)
     echo -e "$INFO [INFO] Releasing tracing $ECHO_LINE '$TRACING_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-tracing.sh -n "$NAMESPACE" -r "$TRACING_RELEASE_NAME" -b "$BLOCK_STORAGE_CLASS" -f "$FILE_STORAGE_CLASS"; then
+    if ! $SCRIPT_DIR/release-tracing.sh $($LICENSE_ACCEPT && echo "-a") -n "$NAMESPACE" -r "$TRACING_RELEASE_NAME" -b "$BLOCK_STORAGE_CLASS" -f "$FILE_STORAGE_CLASS"; then
       update_conditions "Failed to release Tracing $ECHO_LINE '$TRACING_RELEASE_NAME'" "Releasing"
       update_phase "Failed"
       FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)

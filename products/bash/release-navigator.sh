@@ -13,6 +13,7 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -r : <replicas> (string), Defaults to "3"
 #
@@ -21,20 +22,25 @@
 #     ./release-navigator.sh
 #
 #   Overriding the namespace and number of replicas
-#     ./release-navigator -n cp4i-prod -r 1
+#     ./release-navigator [-a] -n cp4i-prod -r 1
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <replicas>"
+  echo "Usage: $0 [-a] -n <namespace> -r <replicas>"
 }
 
+SCRIPT_DIR="$(dirname $0)"
+
+LICENSE_ACCEPT="false"
 namespace="cp4i"
 replicas="3"
 
-SCRIPT_DIR="$(dirname $0)"
 echo "Current Dir: $SCRIPT_DIR"
 
-while getopts "n:r:" opt; do
+while getopts "an:r:" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
   n)
     namespace="$OPTARG"
     ;;
@@ -59,7 +65,7 @@ metadata:
   namespace: ${namespace}
 spec:
   license:
-    accept: true
+    accept: ${LICENSE_ACCEPT}
   mqDashboard: true
   replicas: ${replicas}
   version: 2020.3.1

@@ -13,60 +13,72 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
+#   -a : <LICENSE_ACCEPT> (boolean), Defaults to false, optional
+#   -i : <image_name> (string)
+#   -l : <LICENSE> (string), Defaults to ""
 #   -n : <namespace> (string), Defaults to "cp4i"
 #   -r : <release_name> (string), Defaults to "mq-demo"
-#   -i : <image_name> (string)
 #   -q : <qm_name> (string), Defaults to "QUICKSTART"
-#   -z : <tracing_namespace> (string), Defaults to "namespace"
 #   -t : <tracing_enabled> (boolean), optional flag to enable tracing, Defaults to false
+#   -z : <tracing_namespace> (string), Defaults to "namespace"
 #
 # USAGE:
 #   With defaults values
 #     ./release-mq.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-mq.sh -n cp4i -r mq-demo -i image-registry.openshift-image-registry.svc:5000/cp4i/mq-ddd -q mq-qm
+#     ./release-mq.sh [-a] -i image-registry.openshift-image-registry.svc:5000/cp4i/mq-ddd -l L-RONN-HBBRD -n cp4i -q mq-qm -r mq-demo
 
 function divider() {
   echo -e "\n-------------------------------------------------------------------------------------------------------------------\n"
 }
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <release_name> -i <image_name> -q <qm_name> -z <tracing_namespace> [-t]"
+  echo "Usage: $0 [-a] -i <image_name> -l <LICENSE> -n <namespace> -q <qm_name> -r <release_name> [-t] -z <tracing_namespace>"
   divider
   exit 1
 }
 
 tick="\xE2\x9C\x85"
 cross="\xE2\x9D\x8C"
-namespace="cp4i"
-release_name="mq-demo"
-qm_name="QUICKSTART"
-tracing_namespace=""
-tracing_enabled="false"
 CURRENT_DIR=$(dirname $0)
+
+LICENSE=""
+LICENSE_ACCEPT="false"
+namespace="cp4i"
+qm_name="QUICKSTART"
+release_name="mq-demo"
+tracing_enabled="false"
+tracing_namespace=""
+
 echo "Current directory: $CURRENT_DIR"
 echo "Namespace: $namespace"
 
-while getopts "n:r:i:q:z:t" opt; do
+while getopts "ai:l:n:q:r:tz:" opt; do
   case ${opt} in
+  a)
+    LICENSE_ACCEPT="true"
+    ;;
+  i)
+    image_name="$OPTARG"
+    ;;
+  l)
+    LICENSE="$OPTARG"
+    ;;
   n)
     namespace="$OPTARG"
     ;;
   r)
     release_name="$OPTARG"
     ;;
-  i)
-    image_name="$OPTARG"
-    ;;
   q)
     qm_name="$OPTARG"
     ;;
-  z)
-    tracing_namespace="$OPTARG"
-    ;;
   t)
     tracing_enabled=true
+    ;;
+  z)
+    tracing_namespace="$OPTARG"
     ;;
   \?)
     usage
@@ -112,8 +124,8 @@ metadata:
   fi)
 spec:
   license:
-    accept: true
-    license: L-RJON-BN7PN3
+    accept: ${LICENSE_ACCEPT}
+    license: ${LICENSE}
     use: NonProduction
   queueManager:
     name: ${qm_name}
@@ -210,8 +222,8 @@ metadata:
   fi)
 spec:
   license:
-    accept: true
-    license: L-RJON-BN7PN3
+    accept: ${LICENSE_ACCEPT}
+    license: ${LICENSE}
     use: NonProduction
   pki:
     keys:

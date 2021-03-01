@@ -13,41 +13,46 @@
 #   - Logged into cluster on the OC CLI (https://docs.openshift.com/container-platform/4.4/cli_reference/openshift_cli/getting-started-cli.html)
 #
 # PARAMETERS:
-#   -n : <namespace> (string), Defaults to "cp4i"
-#   -r : <release-name> (string), Defaults to "tracing-demo"
+#   -a : <LICENSE_ACCEPT> (boolean), Default to false, optional
 #   -b : <block-storage-class> (string), Default to "ibmc-block-gold"
 #   -f : <file-storage-class> (string), Default to "ibmc-file-gold-gid"
+#   -n : <namespace> (string), Defaults to "cp4i"
+#   -r : <release-name> (string), Defaults to "tracing-demo"
 #
 # USAGE:
 #   With defaults values
 #     ./release-tracing.sh
 #
 #   Overriding the namespace and release-name
-#     ./release-tracing -n cp4i-prod -r prod
+#     ./release-tracing -a -n cp4i-prod -r prod
 
 function usage() {
-  echo "Usage: $0 -n <namespace> -r <release-name>"
+  echo "Usage: $0 -a -n <namespace> -r <release-name>"
 }
 
-namespace="cp4i"
-release_name="tracing-demo"
 block_storage="ibmc-block-gold"
 file_storage="ibmc-file-gold-gid"
+LICENSE_ACCEPT="false"
+namespace="cp4i"
 production="false"
+release_name="tracing-demo"
 
-while getopts "n:r:b:d:f:p" opt; do
+while getopts "ab:f:n:r:p" opt; do
   case ${opt} in
-  n)
-    namespace="$OPTARG"
-    ;;
-  r)
-    release_name="$OPTARG"
+  a)
+    LICENSE_ACCEPT="true"
     ;;
   b)
     block_storage="$OPTARG"
     ;;
   f)
     file_storage="$OPTARG"
+    ;;
+  n)
+    namespace="$OPTARG"
+    ;;
+  r)
+    release_name="$OPTARG"
     ;;
   p)
     production="true"
@@ -89,7 +94,7 @@ spec:
     - name: ENV_ResourceTemplateName
       value: production
   license:
-    accept: true
+    accept: ${LICENSE_ACCEPT}
   replicas:
     configDb: 3
     frontend: 3

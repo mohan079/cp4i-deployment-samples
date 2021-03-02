@@ -289,7 +289,7 @@ echo -e "$INFO [INFO] If testing the driveway dent deletion demo E2E: '$testDriv
 divider
 
 echo -e "$INFO [INFO] Doing a validation check before installation..."
-if ! $CURRENT_DIR/1-click-pre-validation.sh -n "$JOB_NAMESPACE" -p "$csDefaultAdminPassword" -r "$navReplicaCount" -u "$csDefaultAdminUser" -d "$demoPreparation"; then
+if ! $CURRENT_DIR/1-click-pre-validation.sh -n "$JOB_NAMESPACE" -p "$csDefaultAdminPassword" -r "$navReplicaCount" -u "$csDefaultAdminUser" -d "false"; then
   echo -e "$CROSS [ERROR] 1-click pre validation failed"
   divider
   exit 1

@@ -239,19 +239,19 @@ export CLUSTER_TYPE=$CLUSTER_TYPE
 export CLUSTER_SCOPED=$CLUSTER_SCOPED
 
 if [[ "$demoPreparation" == "true" ]]; then
-  cognitiveCarRepairDemo=true
-  drivewayDentDeletionDemo=true
-  eventEnabledInsuranceDemo=true
+  cognitiveCarRepairDemo=false
+  drivewayDentDeletionDemo=false
+  eventEnabledInsuranceDemo=false
   mappingAssistDemo=true
-  weatherChatbotDemo=true
+  weatherChatbotDemo=false
 fi
 
 if [[ "$drivewayDentDeletionDemo" == "true" ]]; then
-  drivewayDentDeletionDemo=true
+  drivewayDentDeletionDemo=false
 fi
 
 if [[ "$eventEnabledInsuranceDemo" == "true" ]]; then
-  eventEnabledInsuranceDemo=true
+  eventEnabledInsuranceDemo=false
 fi
 
 if [[ "$CLUSTER_SCOPED" == "true" ]]; then

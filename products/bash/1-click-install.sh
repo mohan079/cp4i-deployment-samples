@@ -475,6 +475,10 @@ if [[ "$demoPreparation" == "true" || "$drivewayDentDeletionDemo" == "true" || "
 
   # create a new backup json file to revert demos.json after setup script
   cp $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json $CURRENT_DIR_WITHOUT_DOT_SLASH/demos-backup.json
+  
+  if [[ "$demoPreparation" == "true" ]]; then
+		demoPreparation=false
+  fi
 
   echo -e "\n$INFO [INFO] Replacing all variables with their values in the demo json file to use as input for the demo script..."
   # replace demo.json with variable values

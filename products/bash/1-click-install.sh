@@ -472,14 +472,16 @@ fi
 if [[ "$demoPreparation" == "true" || "$drivewayDentDeletionDemo" == "true" || "$eventEnabledInsuranceDemo" == "true" ]]; then
   divider && echo -e "$INFO [INFO] Setting up all required addons, products and demos in the '$JOB_NAMESPACE' namespace..."
   CURRENT_DIR_WITHOUT_DOT_SLASH=${CURRENT_DIR//.\//}
+	
+	if [[ "$demoPreparation" == "true" ]]; then
+		demoPreparation="false"
+	fi
+	echo -e "$INFO Mohan---------------->All demo set to false: '$demoPreparation'"
 
   # create a new backup json file to revert demos.json after setup script
   cp $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json $CURRENT_DIR_WITHOUT_DOT_SLASH/demos-backup.json
   
-  if [[ "$demoPreparation" == "true" ]]; then
-		demoPreparation=false
-  fi
-
+ 
   echo -e "\n$INFO [INFO] Replacing all variables with their values in the demo json file to use as input for the demo script..."
   # replace demo.json with variable values
   sed -i -e "s/JOB_NAMESPACE/$JOB_NAMESPACE/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json

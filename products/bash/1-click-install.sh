@@ -476,6 +476,8 @@ if [[ "$demoPreparation" == "true" || "$drivewayDentDeletionDemo" == "true" || "
 	if [[ "$demoPreparation" == "true" ]]; then
 		demoPreparation="false"
 	fi
+	export demoPreparation="false"
+
 	echo -e "$INFO Mohan---------------->All demo set to false: '$demoPreparation'"
 
   # create a new backup json file to revert demos.json after setup script

@@ -473,12 +473,8 @@ if [[ "$demoPreparation" == "true" || "$drivewayDentDeletionDemo" == "true" || "
   divider && echo -e "$INFO [INFO] Setting up all required addons, products and demos in the '$JOB_NAMESPACE' namespace..."
   CURRENT_DIR_WITHOUT_DOT_SLASH=${CURRENT_DIR//.\//}
 	
-	if [[ "$demoPreparation" == "true" ]]; then
-		demoPreparation="false"
-	fi
-	export demoPreparation="false"
-
-	echo -e "$INFO Mohan---------------->All demo set to false: '$demoPreparation'"
+	
+	echo -e "$INFO Mohan---------------->Set All demo to false in demo.json"
 
   # create a new backup json file to revert demos.json after setup script
   cp $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json $CURRENT_DIR_WITHOUT_DOT_SLASH/demos-backup.json
@@ -495,7 +491,7 @@ if [[ "$demoPreparation" == "true" || "$drivewayDentDeletionDemo" == "true" || "
   sed -i -e "s/MAIL_SERVER_PORT/$demoAPICMailServerPort/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
   sed -i -e "s/MAIL_SERVER_USERNAME/$demoAPICMailServerUsername/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
   sed -i -e "s/MAIL_SERVER_PASSWORD/$demoAPICMailServerPassword/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
-  sed -i -e "s/DEMO_PREPARATION/$demoPreparation/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
+ # sed -i -e "s/DEMO_PREPARATION/$demoPreparation/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
   sed -i -e "s/COGNITIVE_CAR_REPAIR_DEMO/$cognitiveCarRepairDemo/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
   sed -i -e "s/DRIVEWAY_DENT_DELETION_DEMO/$drivewayDentDeletionDemo/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json
   sed -i -e "s/EVENT_ENABLED_INSURANCE_DEMO/$eventEnabledInsuranceDemo/g" $CURRENT_DIR_WITHOUT_DOT_SLASH/demos.json

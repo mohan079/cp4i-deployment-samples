@@ -25,7 +25,7 @@
       "mailServerPassword": "MAIL_SERVER_PASSWORD"
     },
     "demos": {
-      "all": "DEMO_PREPARATION",
+      "all": "false",
       "cognitiveCarRepair": "COGNITIVE_CAR_REPAIR_DEMO",
       "drivewayDentDeletion": "DRIVEWAY_DENT_DELETION_DEMO",
       "eventEnabledInsurance": "EVENT_ENABLED_INSURANCE_DEMO",

@@ -390,7 +390,9 @@ $DEBUG && echo -e "$INFO [DEBUG] All demos enabled: '$ALL_DEMOS_ENABLED'"
 if [[ "${ALL_DEMOS_ENABLED}" == "true" ]]; then
   REQUIRED_DEMOS_JSON='{"cognitiveCarRepair": {"enabled": true},"drivewayDentDeletion": {"enabled": true},"eventEnabledInsurance": {"enabled": true},"mappingAssist": {"enabled": true},"weatherChatbot": {"enabled": true}}'
 else
+  echo "--------->>Inside else loop of all demo condition"
   REQUIRED_DEMOS_JSON=$(echo $REQUIRED_DEMOS_JSON | jq -c 'del(.all) | del(.[] | select(. == false))')
+  echo -e "--------->>Inside loop: Line 395: '$REQUIRED_DEMOS_JSON'"
 fi
 
 #-------------------------------------------------------------------------------------------------------------------

@@ -62,19 +62,19 @@ MISSING_PARAMS="false"
 MISSING_PREREQS="false"
 
 # cognitive car repair demo list
-COGNITIVE_CAR_REPAIR_PRODUCTS_LIST=("aceDashboard" "aceDesigner" "apic" "assetRepo" "tracing")
+COGNITIVE_CAR_REPAIR_PRODUCTS_LIST=()
 COGNITIVE_CAR_REPAIR_ADDONS_LIST=()
 # driveway dent deletion demo list
-DRIVEWAY_DENT_DELETION_PRODUCTS_LIST=("mq" "aceDashboard" "apic" "tracing")
+DRIVEWAY_DENT_DELETION_PRODUCTS_LIST=("mq" "aceDashboard")
 DRIVEWAY_DENT_DELETION_ADDONS_LIST=("postgres" "ocpPipelines")
 # event insurance demo list
-EVENT_ENABLED_INSURANCE_PRODUCTS_LIST=("mq" "aceDashboard" "apic" "eventStreams" "tracing")
-EVENT_ENABLED_INSURANCE_ADDONS_LIST=("postgres" "elasticSearch" "ocpPipelines")
+EVENT_ENABLED_INSURANCE_PRODUCTS_LIST=()
+EVENT_ENABLED_INSURANCE_ADDONS_LIST=()
 # mapping assist demo list
 MAPPING_ASSIST_PRODUCTS_LIST=("aceDesigner")
 MAPPING_ASSIST_ADDONS_LIST=()
 # ace weather chatbot demo list
-ACE_WEATHER_CHATBOT_PRODUCTS_LIST=("aceDashboard" "aceDesigner" "apic" "assetRepo" "tracing")
+ACE_WEATHER_CHATBOT_PRODUCTS_LIST=()
 ACE_WEATHER_CHATBOT_ADDONS_LIST=()
 
 # Default release name variables
@@ -411,12 +411,7 @@ for DEMO in $(echo $REQUIRED_DEMOS_JSON | jq -r 'keys[]'); do
   ADDONS_FOR_DEMO=""
   case ${DEMO} in
   cognitiveCarRepair)
-    PRODUCTS_FOR_DEMO='
-      aceDashboard
-      aceDesigner
-      apic
-      assetRepo
-      tracing
+    PRODUCTS_FOR_DEMO='      
       '
     ADDONS_FOR_DEMO=''
     ;;
@@ -424,8 +419,6 @@ for DEMO in $(echo $REQUIRED_DEMOS_JSON | jq -r 'keys[]'); do
     PRODUCTS_FOR_DEMO='
       mq
       aceDashboard
-      apic
-      tracing
       '
 
     # Disabled as we no longer want a separate namespace for test. The following is an example
@@ -438,36 +431,36 @@ for DEMO in $(echo $REQUIRED_DEMOS_JSON | jq -r 'keys[]'); do
       ocpPipelines
       '
     ;;
-  eventEnabledInsurance)
-    PRODUCTS_FOR_DEMO='
-      mq
-      aceDashboard
-      apic
-      eventStreams
-      tracing
-      '
-    ADDONS_FOR_DEMO='
-      postgres
-      elasticSearch
-      ocpPipelines
-      '
-    ;;
+  # eventEnabledInsurance)
+    # PRODUCTS_FOR_DEMO='
+      # mq
+      # aceDashboard
+      # apic
+      # eventStreams
+      # tracing
+      # '
+    # ADDONS_FOR_DEMO='
+      # postgres
+      # elasticSearch
+      # ocpPipelines
+      # '
+    # ;;
   mappingAssist)
     PRODUCTS_FOR_DEMO='
       aceDesigner
       '
     ADDONS_FOR_DEMO=''
     ;;
-  weatherChatbot)
-    PRODUCTS_FOR_DEMO='
-      aceDashboard
-      aceDesigner
-      apic
-      assetRepo
-      tracing
-      '
-    ADDONS_FOR_DEMO=''
-    ;;
+  # weatherChatbot)
+    # PRODUCTS_FOR_DEMO='
+      # aceDashboard
+      # aceDesigner
+      # apic
+      # assetRepo
+      # tracing
+      # '
+    # ADDONS_FOR_DEMO=''
+    # ;;
   *)
     echo -e "$CROSS ERROR: Unknown demo: ${DEMO}" 1>&2
     exit 1
@@ -646,31 +639,31 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
     divider
     ;;
 
-  aceDesigner)
-    echo -e "$INFO [INFO] Releasing ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-ace-designer.sh -n "$NAMESPACE" -r "$ACE_DESIGNER_RELEASE_NAME" -s "$BLOCK_STORAGE_CLASS"; then
-      update_conditions "Failed to release ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'" "Releasing"
-      update_phase "Failed"
-      FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
-    else
-      echo -e "\n$TICK [INFO] Successfully released ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'"
-      update_product_status "$ACE_DESIGNER_RELEASE_NAME" "$EACH_PRODUCT" "true" "true"
-    fi # release-ace-designer.sh
-    divider
-    ;;
+ # aceDesigner)
+ #   echo -e "$INFO [INFO] Releasing ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'...\n"
+ #  if ! $SCRIPT_DIR/release-ace-designer.sh -n "$NAMESPACE" -r "$ACE_DESIGNER_RELEASE_NAME" -s "$BLOCK_STORAGE_CLASS"; then
+ #     update_conditions "Failed to release ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'" "Releasing"
+ #    update_phase "Failed"
+ #   FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
+ #   else
+ #    echo -e "\n$TICK [INFO] Successfully released ACE Designer $ECHO_LINE '$ACE_DESIGNER_RELEASE_NAME'"
+ #    update_product_status "$ACE_DESIGNER_RELEASE_NAME" "$EACH_PRODUCT" "true" "true"
+ #  fi # release-ace-designer.sh
+ #  divider
+ #  ;;
 
-  assetRepo)
-    echo -e "$INFO [INFO] Releasing Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-ar.sh -n "$NAMESPACE" -r "$ASSET_REPOSITORY_RELEASE_NAME" -a "$FILE_STORAGE_CLASS" -c "$BLOCK_STORAGE_CLASS"; then
-      update_conditions "Failed to release Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'" "Releasing"
-      update_phase "Failed"
-      FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
-    else
-      echo -e "\n$TICK [SUCCESS] Successfully released Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'"
-      update_product_status "$ASSET_REPOSITORY_RELEASE_NAME" "$EACH_PRODUCT" "true" "false"
-    fi # release-ar.sh
-    divider
-    ;;
+  # assetRepo)
+    # echo -e "$INFO [INFO] Releasing Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'...\n"
+    # if ! $SCRIPT_DIR/release-ar.sh -n "$NAMESPACE" -r "$ASSET_REPOSITORY_RELEASE_NAME" -a "$FILE_STORAGE_CLASS" -c "$BLOCK_STORAGE_CLASS"; then
+      # update_conditions "Failed to release Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'" "Releasing"
+      # update_phase "Failed"
+      # FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
+    # else
+      # echo -e "\n$TICK [SUCCESS] Successfully released Asset Repository $ECHO_LINE '$ASSET_REPOSITORY_RELEASE_NAME'"
+      # update_product_status "$ASSET_REPOSITORY_RELEASE_NAME" "$EACH_PRODUCT" "true" "false"
+    # fi # release-ar.sh
+    # divider
+    # ;;
 
   aceDashboard)
     echo -e "$INFO [INFO] Releasing ACE dashboard $ECHO_LINE '$ACE_DASHBOARD_RELEASE_NAME'...\n"
@@ -685,59 +678,59 @@ for EACH_PRODUCT in $(echo "${REQUIRED_PRODUCTS_JSON}" | jq -r '. | keys[]'); do
     divider
     ;;
 
-  apic)
-    # if no config value passed for APIC in the input configuration, set to default values else take from passed apic configuration
-    export PORG_ADMIN_EMAIL=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("emailAddress") then .emailAddress else "'$DEFAULT_APIC_EMAIL_ADDRESS'" end')
-    export MAIL_SERVER_HOST=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerHost") then .mailServerHost else "'$DEFAULT_APIC_MAIL_SERVER_HOST'" end')
-    export MAIL_SERVER_PORT=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerPort") then .mailServerPort else "'$DEFAULT_APIC_MAIL_SERVER_PORT'" end')
-    export MAIL_SERVER_USERNAME=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerUsername") then .mailServerUsername else "'$DEFAULT_APIC_MAIL_SERVER_USERNAME'" end')
-    export MAIL_SERVER_PASSWORD=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerPassword") then .mailServerPassword else "'$DEFAULT_APIC_MAIL_SERVER_PASSWORD'" end')
+  # apic)
+    # # if no config value passed for APIC in the input configuration, set to default values else take from passed apic configuration
+    # export PORG_ADMIN_EMAIL=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("emailAddress") then .emailAddress else "'$DEFAULT_APIC_EMAIL_ADDRESS'" end')
+    # export MAIL_SERVER_HOST=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerHost") then .mailServerHost else "'$DEFAULT_APIC_MAIL_SERVER_HOST'" end')
+    # export MAIL_SERVER_PORT=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerPort") then .mailServerPort else "'$DEFAULT_APIC_MAIL_SERVER_PORT'" end')
+    # export MAIL_SERVER_USERNAME=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerUsername") then .mailServerUsername else "'$DEFAULT_APIC_MAIL_SERVER_USERNAME'" end')
+    # export MAIL_SERVER_PASSWORD=$(echo ${APIC_CONFIGURATION} | jq -r '. | if has("mailServerPassword") then .mailServerPassword else "'$DEFAULT_APIC_MAIL_SERVER_PASSWORD'" end')
 
-    # check if to enable or disable tracing while releasing APIC
-    if [[ "$TRACING_ENABLED" == "true" ]]; then
-      RELEASE_APIC_PARAMS="-n $NAMESPACE -r $APIC_RELEASE_NAME -t"
-    else
-      RELEASE_APIC_PARAMS="-n $NAMESPACE -r $APIC_RELEASE_NAME"
-    fi
+    # # check if to enable or disable tracing while releasing APIC
+    # if [[ "$TRACING_ENABLED" == "true" ]]; then
+      # RELEASE_APIC_PARAMS="-n $NAMESPACE -r $APIC_RELEASE_NAME -t"
+    # else
+      # RELEASE_APIC_PARAMS="-n $NAMESPACE -r $APIC_RELEASE_NAME"
+    # fi
 
-    echo -e "$INFO [INFO] Releasing APIC $ECHO_LINE '$APIC_RELEASE_NAME' with release parameters as '$RELEASE_APIC_PARAMS'...\n"
+    # echo -e "$INFO [INFO] Releasing APIC $ECHO_LINE '$APIC_RELEASE_NAME' with release parameters as '$RELEASE_APIC_PARAMS'...\n"
 
-    if ! $SCRIPT_DIR/release-apic.sh $RELEASE_APIC_PARAMS; then
-      update_conditions "Failed to release APIC $ECHO_LINE '$APIC_RELEASE_NAME'" "Releasing"
-      update_phase "Failed"
-      FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
-    else
-      echo -e "\n$TICK [SUCCESS] Successfully released APIC $ECHO_LINE '$APIC_RELEASE_NAME'"
-      update_product_status "$APIC_RELEASE_NAME" "$EACH_PRODUCT" "true" "false"
-    fi # release-apic.sh
-    divider
-    ;;
+    # if ! $SCRIPT_DIR/release-apic.sh $RELEASE_APIC_PARAMS; then
+      # update_conditions "Failed to release APIC $ECHO_LINE '$APIC_RELEASE_NAME'" "Releasing"
+      # update_phase "Failed"
+      # FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
+    # else
+      # echo -e "\n$TICK [SUCCESS] Successfully released APIC $ECHO_LINE '$APIC_RELEASE_NAME'"
+      # update_product_status "$APIC_RELEASE_NAME" "$EACH_PRODUCT" "true" "false"
+    # fi # release-apic.sh
+    # divider
+    # ;;
 
-  eventStreams)
-    echo -e "$INFO [INFO] Releasing Event Streams $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-es.sh -n "$NAMESPACE" -r "$EVENT_STREAM_RELEASE_NAME"; then
-      update_conditions "Failed to release $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'" "Releasing"
-      update_phase "Failed"
-      FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
-    else
-      echo -e "\n$TICK [SUCCESS] Successfully released event streams $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'"
-      update_product_status "$EVENT_STREAM_RELEASE_NAME" "$EACH_PRODUCT" "true" "true"
-    fi # release-es.sh
-    divider
-    ;;
+  # eventStreams)
+    # echo -e "$INFO [INFO] Releasing Event Streams $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'...\n"
+    # if ! $SCRIPT_DIR/release-es.sh -n "$NAMESPACE" -r "$EVENT_STREAM_RELEASE_NAME"; then
+      # update_conditions "Failed to release $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'" "Releasing"
+      # update_phase "Failed"
+      # FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
+    # else
+      # echo -e "\n$TICK [SUCCESS] Successfully released event streams $ECHO_LINE '$EVENT_STREAM_RELEASE_NAME'"
+      # update_product_status "$EVENT_STREAM_RELEASE_NAME" "$EACH_PRODUCT" "true" "true"
+    # fi # release-es.sh
+    # divider
+    # ;;
 
-  tracing)
-    echo -e "$INFO [INFO] Releasing tracing $ECHO_LINE '$TRACING_RELEASE_NAME'...\n"
-    if ! $SCRIPT_DIR/release-tracing.sh -n "$NAMESPACE" -r "$TRACING_RELEASE_NAME" -b "$BLOCK_STORAGE_CLASS" -f "$FILE_STORAGE_CLASS"; then
-      update_conditions "Failed to release Tracing $ECHO_LINE '$TRACING_RELEASE_NAME'" "Releasing"
-      update_phase "Failed"
-      FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
-    else
-      echo -e "\n$TICK [SUCCESS] Successfully released Tracing $ECHO_LINE '$TRACING_RELEASE_NAME'"
-      update_product_status "$TRACING_RELEASE_NAME" "$EACH_PRODUCT" "true" "false"
-    fi # release-tracing.sh
-    divider
-    ;;
+  # tracing)
+    # echo -e "$INFO [INFO] Releasing tracing $ECHO_LINE '$TRACING_RELEASE_NAME'...\n"
+    # if ! $SCRIPT_DIR/release-tracing.sh -n "$NAMESPACE" -r "$TRACING_RELEASE_NAME" -b "$BLOCK_STORAGE_CLASS" -f "$FILE_STORAGE_CLASS"; then
+      # update_conditions "Failed to release Tracing $ECHO_LINE '$TRACING_RELEASE_NAME'" "Releasing"
+      # update_phase "Failed"
+      # FAILED_INSTALL_PRODUCTS_LIST+=($EACH_PRODUCT)
+    # else
+      # echo -e "\n$TICK [SUCCESS] Successfully released Tracing $ECHO_LINE '$TRACING_RELEASE_NAME'"
+      # update_product_status "$TRACING_RELEASE_NAME" "$EACH_PRODUCT" "true" "false"
+    # fi # release-tracing.sh
+    # divider
+    # ;;
 
   *)
     divider && echo -e "$CROSS ERROR: Unknown product type: ${EACH_PRODUCT}" 1>&2
@@ -769,37 +762,37 @@ fi
 # Configure APIC if APIC is amongst selected product. Tracing registration is a pre-req for this step.
 #-------------------------------------------------------------------------------------------------------------------
 
-if [[ "$(echo $REQUIRED_PRODUCTS_JSON | jq '.apic?')" == "true" ]]; then
-  echo -e "$INFO [INFO] Configuring APIC in the '$NAMESPACE' namespace...\n"
-  if ! $SCRIPT_DIR/configure-apic-v10.sh -n "$NAMESPACE" -r "$APIC_RELEASE_NAME"; then
-    update_conditions "Failed to configure APIC in the '$NAMESPACE' namespace" "Releasing"
-    update_phase "Failed"
-    update_product_status "$APIC_RELEASE_NAME" "apic" "true" "false"
-    FAILED_INSTALL_PRODUCTS_LIST+=(apic)
-  else
-    echo -e "$TICK [SUCCESS] Successfully configured APIC in the '$NAMESPACE' namespace"
-    update_product_status "$APIC_RELEASE_NAME" "apic" "true" "true"
-  fi # configure-apic-v10.sh
-  divider
-fi
+# if [[ "$(echo $REQUIRED_PRODUCTS_JSON | jq '.apic?')" == "true" ]]; then
+  # echo -e "$INFO [INFO] Configuring APIC in the '$NAMESPACE' namespace...\n"
+  # if ! $SCRIPT_DIR/configure-apic-v10.sh -n "$NAMESPACE" -r "$APIC_RELEASE_NAME"; then
+    # update_conditions "Failed to configure APIC in the '$NAMESPACE' namespace" "Releasing"
+    # update_phase "Failed"
+    # update_product_status "$APIC_RELEASE_NAME" "apic" "true" "false"
+    # FAILED_INSTALL_PRODUCTS_LIST+=(apic)
+  # else
+    # echo -e "$TICK [SUCCESS] Successfully configured APIC in the '$NAMESPACE' namespace"
+    # update_product_status "$APIC_RELEASE_NAME" "apic" "true" "true"
+  # fi # configure-apic-v10.sh
+  # divider
+# fi
 
-#-------------------------------------------------------------------------------------------------------------------
-# If asset repository is enabled, create Asset Repository remote
-#-------------------------------------------------------------------------------------------------------------------
+# #-------------------------------------------------------------------------------------------------------------------
+# # If asset repository is enabled, create Asset Repository remote
+# #-------------------------------------------------------------------------------------------------------------------
 
-if [[ "$(echo $REQUIRED_PRODUCTS_JSON | jq '.assetRepo?')" == "true" ]]; then
-  echo -e "$INFO [INFO] Creating Asset Repository remote in the '$NAMESPACE' namespace with the name '$ASSET_REPOSITORY_RELEASE_NAME'...\n"
-  if ! $SCRIPT_DIR/ar_remote_create.sh -r "$ASSET_REPOSITORY_RELEASE_NAME" -n "$NAMESPACE" -o; then
-    update_conditions "Failed to create Asset Repository remote in the '$NAMESPACE' namespace with the name '$ASSET_REPOSITORY_RELEASE_NAME'" "Releasing"
-    update_phase "Failed"
-    update_product_status "$ASSET_REPOSITORY_RELEASE_NAME" "assetRepo" "true" "false"
-    FAILED_INSTALL_PRODUCTS_LIST+=(assetRepo)
-  else
-    echo -e "\n$TICK [SUCCESS] Successfully created Asset Repository remote in the '$NAMESPACE' namespace with the name '$ASSET_REPOSITORY_RELEASE_NAME'"
-    update_product_status "$ASSET_REPOSITORY_RELEASE_NAME" "assetRepo" "true" "true"
-  fi # ar_remote_create.sh
-  divider
-fi
+# if [[ "$(echo $REQUIRED_PRODUCTS_JSON | jq '.assetRepo?')" == "true" ]]; then
+  # echo -e "$INFO [INFO] Creating Asset Repository remote in the '$NAMESPACE' namespace with the name '$ASSET_REPOSITORY_RELEASE_NAME'...\n"
+  # if ! $SCRIPT_DIR/ar_remote_create.sh -r "$ASSET_REPOSITORY_RELEASE_NAME" -n "$NAMESPACE" -o; then
+    # update_conditions "Failed to create Asset Repository remote in the '$NAMESPACE' namespace with the name '$ASSET_REPOSITORY_RELEASE_NAME'" "Releasing"
+    # update_phase "Failed"
+    # update_product_status "$ASSET_REPOSITORY_RELEASE_NAME" "assetRepo" "true" "false"
+    # FAILED_INSTALL_PRODUCTS_LIST+=(assetRepo)
+  # else
+    # echo -e "\n$TICK [SUCCESS] Successfully created Asset Repository remote in the '$NAMESPACE' namespace with the name '$ASSET_REPOSITORY_RELEASE_NAME'"
+    # update_product_status "$ASSET_REPOSITORY_RELEASE_NAME" "assetRepo" "true" "true"
+  # fi # ar_remote_create.sh
+  # divider
+# fi
 
 #-------------------------------------------------------------------------------------------------------------------
 # Setup the required demos
@@ -808,42 +801,42 @@ fi
 echo -e "$INFO [INFO] Starting demos setup..." && divider
 for EACH_DEMO in $(echo $REQUIRED_DEMOS_JSON | jq -r '. | keys[]'); do
   case $EACH_DEMO in
-  cognitiveCarRepair)
-    set_up_demos "$EACH_DEMO" "Cognitive Car Repair" "${#COGNITIVE_CAR_REPAIR_PRODUCTS_LIST[@]}" "${COGNITIVE_CAR_REPAIR_PRODUCTS_LIST[@]}" "${#COGNITIVE_CAR_REPAIR_ADDONS_LIST[@]}" "${COGNITIVE_CAR_REPAIR_ADDONS_LIST[@]}"
-    divider
-    ;;
+  # cognitiveCarRepair)
+    # set_up_demos "$EACH_DEMO" "Cognitive Car Repair" "${#COGNITIVE_CAR_REPAIR_PRODUCTS_LIST[@]}" "${COGNITIVE_CAR_REPAIR_PRODUCTS_LIST[@]}" "${#COGNITIVE_CAR_REPAIR_ADDONS_LIST[@]}" "${COGNITIVE_CAR_REPAIR_ADDONS_LIST[@]}"
+    # divider
+    # ;;
 
-  eventEnabledInsurance)
-    echo -e "$INFO [INFO] Starting the setup of the event enabled insurance demo"
-    echo -e "\n$INFO [INFO] Checking if all addons are installed and configured for the event enabled insurance demo"
-    check_current_status "$EACH_DEMO" "addons" "${EVENT_ENABLED_INSURANCE_ADDONS_LIST[@]}"
-    ADDONS_CONFIGURED=$DEMO_CONFIGURED
-    echo -e "\n$INFO [INFO] Checking if all products are installed and setup for the event enabled insurance demo"
-    check_current_status "$EACH_DEMO" "products" "${EVENT_ENABLED_INSURANCE_PRODUCTS_LIST[@]}"
-    PRODUCTS_CONFIGURED=$DEMO_CONFIGURED
-    if [[ "$ADDONS_CONFIGURED" == "true" && "$PRODUCTS_CONFIGURED" == "true" ]]; then
-      # if all addon/products are installed and configured correctly, set installed to true, but ready to false as configuration still left and then run the prereqs
-      update_demo_status "$EACH_DEMO" "true" "false"
+  # eventEnabledInsurance)
+    # echo -e "$INFO [INFO] Starting the setup of the event enabled insurance demo"
+    # echo -e "\n$INFO [INFO] Checking if all addons are installed and configured for the event enabled insurance demo"
+    # check_current_status "$EACH_DEMO" "addons" "${EVENT_ENABLED_INSURANCE_ADDONS_LIST[@]}"
+    # ADDONS_CONFIGURED=$DEMO_CONFIGURED
+    # echo -e "\n$INFO [INFO] Checking if all products are installed and setup for the event enabled insurance demo"
+    # check_current_status "$EACH_DEMO" "products" "${EVENT_ENABLED_INSURANCE_PRODUCTS_LIST[@]}"
+    # PRODUCTS_CONFIGURED=$DEMO_CONFIGURED
+    # if [[ "$ADDONS_CONFIGURED" == "true" && "$PRODUCTS_CONFIGURED" == "true" ]]; then
+      # # if all addon/products are installed and configured correctly, set installed to true, but ready to false as configuration still left and then run the prereqs
+      # update_demo_status "$EACH_DEMO" "true" "false"
 
-      divider && echo -e "$INFO [INFO] Setting up prereqs for Event Enabled Insurance demo in the '$NAMESPACE' namespace" && divider
-      # setup the prereqs for event enabled insurance demo
-      if ! $SCRIPT_DIR/../../EventEnabledInsurance/prereqs.sh -n "$NAMESPACE" -b "$SAMPLES_REPO_BRANCH" -e "$NAMESPACE" -p "$NAMESPACE" -f "$FILE_STORAGE_CLASS" -g "$BLOCK_STORAGE_CLASS" -o; then
-        echo -e "$CROSS [ERROR] Failed to run event enabled insurance prereqs script\n"
-        divider && echo -e "$CROSS [ERROR] Event Enabled Insurance demo did not setup correctly. $CROSS"
-        update_conditions "Failed to run event enabled insurance prereqs script in the '$NAMESPACE' namespace" "Prereqs"
-        update_phase "Failed"
-        update_demo_status "$EACH_DEMO" "" "false"
-        FAILED_INSTALL_DEMOS_LIST+=($EACH_DEMO)
-      else
-        echo -e "$TICK $ALL_DONE [SUCCESS] Event Enabled Insurance demo setup completed successfully in the '$NAMESPACE' namespace. $ALL_DONE $TICK"
-        update_demo_status "$EACH_DEMO" "" "true"
-      fi # EventEnabledInsurance/prereqs.sh
-    else
-      # If one or more products failed to setup/configure, demo is not ready to use, set installed and ready to false
-      update_demo_status "$EACH_DEMO" "false" "false"
-    fi
-    divider
-    ;;
+      # divider && echo -e "$INFO [INFO] Setting up prereqs for Event Enabled Insurance demo in the '$NAMESPACE' namespace" && divider
+      # # setup the prereqs for event enabled insurance demo
+      # if ! $SCRIPT_DIR/../../EventEnabledInsurance/prereqs.sh -n "$NAMESPACE" -b "$SAMPLES_REPO_BRANCH" -e "$NAMESPACE" -p "$NAMESPACE" -f "$FILE_STORAGE_CLASS" -g "$BLOCK_STORAGE_CLASS" -o; then
+        # echo -e "$CROSS [ERROR] Failed to run event enabled insurance prereqs script\n"
+        # divider && echo -e "$CROSS [ERROR] Event Enabled Insurance demo did not setup correctly. $CROSS"
+        # update_conditions "Failed to run event enabled insurance prereqs script in the '$NAMESPACE' namespace" "Prereqs"
+        # update_phase "Failed"
+        # update_demo_status "$EACH_DEMO" "" "false"
+        # FAILED_INSTALL_DEMOS_LIST+=($EACH_DEMO)
+      # else
+        # echo -e "$TICK $ALL_DONE [SUCCESS] Event Enabled Insurance demo setup completed successfully in the '$NAMESPACE' namespace. $ALL_DONE $TICK"
+        # update_demo_status "$EACH_DEMO" "" "true"
+      # fi # EventEnabledInsurance/prereqs.sh
+    # else
+      # # If one or more products failed to setup/configure, demo is not ready to use, set installed and ready to false
+      # update_demo_status "$EACH_DEMO" "false" "false"
+    # fi
+    # divider
+    # ;;
 
   drivewayDentDeletion)
     echo -e "$INFO [INFO] Setting up the driveway dent deletion demo...\n"
@@ -876,15 +869,15 @@ for EACH_DEMO in $(echo $REQUIRED_DEMOS_JSON | jq -r '. | keys[]'); do
     divider
     ;;
 
-  mappingAssist)
-    set_up_demos "$EACH_DEMO" "Mapping Assist" "${#MAPPING_ASSIST_PRODUCTS_LIST[@]}" "${MAPPING_ASSIST_PRODUCTS_LIST[@]}" "${#MAPPING_ASSIST_ADDONS_LIST[@]}" "${MAPPING_ASSIST_ADDONS_LIST[@]}"
-    divider
-    ;;
+  # mappingAssist)
+    # set_up_demos "$EACH_DEMO" "Mapping Assist" "${#MAPPING_ASSIST_PRODUCTS_LIST[@]}" "${MAPPING_ASSIST_PRODUCTS_LIST[@]}" "${#MAPPING_ASSIST_ADDONS_LIST[@]}" "${MAPPING_ASSIST_ADDONS_LIST[@]}"
+    # divider
+    # ;;
 
-  weatherChatbot)
-    set_up_demos "$EACH_DEMO" "Weather Chatbot" "${#ACE_WEATHER_CHATBOT_PRODUCTS_LIST[@]}" "${ACE_WEATHER_CHATBOT_PRODUCTS_LIST[@]}" "${#ACE_WEATHER_CHATBOT_ADDONS_LIST[@]}" "${ACE_WEATHER_CHATBOT_ADDONS_LIST[@]}"
-    divider
-    ;;
+  # weatherChatbot)
+    # set_up_demos "$EACH_DEMO" "Weather Chatbot" "${#ACE_WEATHER_CHATBOT_PRODUCTS_LIST[@]}" "${ACE_WEATHER_CHATBOT_PRODUCTS_LIST[@]}" "${#ACE_WEATHER_CHATBOT_ADDONS_LIST[@]}" "${ACE_WEATHER_CHATBOT_ADDONS_LIST[@]}"
+    # divider
+    # ;;
 
   *)
     divider && echo -e "$CROSS ERROR: Unknown demo type: ${EACH_DEMO}" 1>&2

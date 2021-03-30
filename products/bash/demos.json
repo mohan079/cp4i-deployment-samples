@@ -26,6 +26,7 @@
     },
     "demos": {
       "all": "false",
+	  "drivewayDentDeletion": "DRIVEWAY_DENT_DELETION_DEMO",
       "mappingAssist": "MAPPING_ASSIST_DEMO"
     }
   }

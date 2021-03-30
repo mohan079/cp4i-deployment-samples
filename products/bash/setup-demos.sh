@@ -71,7 +71,7 @@ DRIVEWAY_DENT_DELETION_ADDONS_LIST=("postgres" "ocpPipelines")
 EVENT_ENABLED_INSURANCE_PRODUCTS_LIST=()
 EVENT_ENABLED_INSURANCE_ADDONS_LIST=()
 # mapping assist demo list
-MAPPING_ASSIST_PRODUCTS_LIST=("aceDesigner")
+MAPPING_ASSIST_PRODUCTS_LIST=()
 MAPPING_ASSIST_ADDONS_LIST=()
 # ace weather chatbot demo list
 ACE_WEATHER_CHATBOT_PRODUCTS_LIST=()
@@ -446,9 +446,7 @@ for DEMO in $(echo $REQUIRED_DEMOS_JSON | jq -r 'keys[]'); do
       # '
     # ;;
   mappingAssist)
-    PRODUCTS_FOR_DEMO='
-      aceDesigner
-      '
+    PRODUCTS_FOR_DEMO=''
     ADDONS_FOR_DEMO=''
     ;;
   # weatherChatbot)
